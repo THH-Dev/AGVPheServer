@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: fleetmanager-database
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=PhuYen@302
+    networks:
+      robotnet: null
+
+  fleet-manager:
+    image: thhfleet:0.0.9
+    container_name: fleetmanager
+    restart: unless-stopped
+    ports:
+      - '443:443'
+      - '80:80'
+      - '8080:8080'
+    volumes:
+      - ./keys:/root/.aspnet/DataProtection-Keys
+    environment:
+      - ASPNETCORE_URLS=
+    depends_on:
+      - database
+    networks:
+      robotnet:
+        aliases:
+          - database
+
+networks:
+  robotnet:
+    driver: bridge
